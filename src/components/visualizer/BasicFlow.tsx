@@ -85,11 +85,7 @@ const HTTPMethodLabel: React.FC<{
   };
 
   return (
-    <div
-      className={
-        className + ' ' + 'w-fit rounded-sm h-fit text-white text-xs' + ' ' + classes[method]
-      }
-    >
+    <div className={`${className} -fit rounded-sm h-fit text-white text-xs ${classes[method]}`}>
       {method}
     </div>
   );
