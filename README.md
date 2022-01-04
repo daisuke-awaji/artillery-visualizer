@@ -7,11 +7,11 @@
 <p align="center">Visualize your <a href="https://www.artillery.io/">artillery</a> scenario.yml.</p>
 <p align="center">This site is in public beta.</p>
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/daisuke-awaji/artillery-visualizer/main/media/artillery-visualizer-demo.png" alt="demo image" />
+</p>
+
 ## Features
 
 - **Scenarios** Visualize scenarios diagram 📝<br/>
 - **Phases** Visualize phases graph 📊 (to be implemented)
-
-<p align="center">
-<img src="https://raw.githubusercontent.com/daisuke-awaji/artillery-visuzlizer/main/media/artillery-visualizer-demo.png" alt="demo image" />
-</p>
