@@ -1,7 +1,22 @@
 import { createState, useState } from '@hookstate/core';
 
+export type ArtillerySpec = {
+  config: {
+    target: string;
+    phases: any[];
+  };
+  payload: {
+    path: string;
+    fields: string[];
+  };
+  scenarios: Array<{
+    name: string;
+    flow: any[];
+  }>;
+};
+
 export interface ParserState {
-  parsedSpec: any | null; // TODO: spec
+  parsedSpec: ArtillerySpec | null; // TODO: spec
   valid: boolean;
   errors: any[];
 }

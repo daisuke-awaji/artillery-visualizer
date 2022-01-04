@@ -21,6 +21,7 @@ function setActiveNav(navItem: NavItemType) {
       newState.view = !newState.view;
     } else {
       newState.viewType = navItem;
+      localStorage.setItem('nav-item', navItem);
       if (newState.view === false) {
         newState.view = true;
       }

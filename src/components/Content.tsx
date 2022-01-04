@@ -10,7 +10,7 @@ import SplitPane from 'react-split-pane';
 import { debounce } from '../helpers';
 import state from '../state';
 import { Editor } from './editor';
-import BasicFlow from './visualizer/BasicFlow';
+import BasicFlow from './visualizer/scenarios/BasicFlow';
 import { PhasesSeriesGraph } from './visualizer/phases';
 
 interface ContentProps {}

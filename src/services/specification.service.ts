@@ -1,6 +1,6 @@
 // import { FormatService } from './format.service';
 
-import { parserState } from '../state/parser';
+import { ArtillerySpec, parserState } from '../state/parser';
 import * as yaml from 'js-yaml';
 
 // import state from '../state';
@@ -14,10 +14,10 @@ export class SpecificationService {
   static async parseSpec(rawSpec: string): Promise<void> {
     // TODO: validate rawSpec
     try {
-      const parsedSpec = yaml.load(rawSpec);
+      const parsedSpec = yaml.load(rawSpec) as ArtillerySpec;
       window.ParsedSpec = parsedSpec;
       parserState.set({
-        parsedSpec: parsedSpec,
+        parsedSpec,
         valid: true,
         errors: [],
       });

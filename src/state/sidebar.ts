@@ -18,7 +18,8 @@ export const sidebarState = createState<SidebarState>({
     navigation: true,
     editor: true,
     view: true,
-    viewType: 'visualizer',
+    viewType:
+      (localStorage.getItem('nav-item') as SidebarState['panels']['viewType']) ?? 'visualizer',
   },
 });
 

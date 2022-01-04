@@ -9,9 +9,9 @@ import ReactFlow, {
   Position,
   isNode,
 } from 'react-flow-renderer';
-import { SpecificationService } from '../../services';
+import { SpecificationService } from '../../../services';
 
-import state from '../../state';
+import state from '../../../state';
 
 import dagre from 'dagre';
 
@@ -158,13 +158,13 @@ const getElementsFromArtilleryScenario = (
 
   const elements = parsedSpec.scenarios
     .map((scenario: any, scenarioIndex: number) => {
-      const x = scenarioIndex * 500;
+      const x = 100 + scenarioIndex * 500;
 
       const flowScenarios = scenario.flow.map((flowItem: any, index: number) => {
         const method = Object.keys(flowItem)[0];
         const nodeObj = flowItem[method];
 
-        const y = 75 + index * 200;
+        const y = 175 + index * 200;
 
         const nodeOptions = { position: { x, y }, type: 'special' };
 
@@ -195,14 +195,14 @@ const getElementsFromArtilleryScenario = (
       flowScenarios.splice(0, 0, {
         id: 'node-start-flow-' + scenarioIndex,
         data: { flow },
-        position: { x, y: 0 },
+        position: { x, y: 100 },
         type: 'special',
       });
 
       flowScenarios.push({
         id: 'node-end-flow-' + scenarioIndex,
         data: { flow },
-        position: { x, y: 75 + (flowScenarios.length - 1) * 200 },
+        position: { x, y: 175 + (flowScenarios.length - 1) * 200 },
         type: 'special',
       });
 
@@ -229,7 +229,7 @@ const getElementsFromArtilleryScenario = (
 };
 
 const BasicFlow = () => {
-  const [parsedSpec, setParsedSpec] = useState<any[] | null>(null);
+  const [parsedSpec, setParsedSpec] = useState<any | null>(null);
 
   const parserState = state.useParserState();
   const templateState = state.useTemplateState();
@@ -251,17 +251,17 @@ const BasicFlow = () => {
   }, [templateState.rerender.get()]); // eslint-disable-line
 
   return (
-    <div className="h-screen bg-neutral-200 relative">
-      <ReactFlow elements={elements} nodeTypes={nodeTypes}>
-        <MiniMap style={{ bottom: '70px' }} />
-        <Controls style={{ bottom: '70px' }} />
-        <Background />
-      </ReactFlow>
+    <div className="h-screen bg-neutral-100 relative">
       <div className="m-4 px-2 text-lg absolute text-gray-800 top-0 left-0 bg-white space-x-2 py-2 border border-gray-100 inline-block">
         <span className="font-bold">Artillery Visualizer</span>
         <span className="text-gray-200">|</span>
         <span className="font-light capitalize">Scenarios</span>
       </div>
+      <ReactFlow elements={elements} nodeTypes={nodeTypes}>
+        <MiniMap style={{ bottom: '70px' }} />
+        <Controls style={{ bottom: '70px' }} />
+        <Background />
+      </ReactFlow>
     </div>
   );
 };
