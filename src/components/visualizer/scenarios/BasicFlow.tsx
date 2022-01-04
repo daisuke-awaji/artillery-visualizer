@@ -158,7 +158,7 @@ const getElementsFromArtilleryScenario = (
 
   const elements = parsedSpec.scenarios
     .map((scenario: any, scenarioIndex: number) => {
-      const x = 100 + scenarioIndex * 500;
+      const x = 100 + scenarioIndex * 550;
 
       const flowScenarios = scenario.flow.map((flowItem: any, index: number) => {
         const method = Object.keys(flowItem)[0];
