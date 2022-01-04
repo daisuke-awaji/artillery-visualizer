@@ -7,10 +7,16 @@ import ReactFlow, {
   Handle,
   MiniMap,
   Position,
+  isNode,
 } from 'react-flow-renderer';
 import { SpecificationService } from '../../services';
 
 import state from '../../state';
+
+import dagre from 'dagre';
+
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
 
 type ArtilleryCustomNodeComponentProps = {
   url?: string;
@@ -20,54 +26,8 @@ type ArtilleryCustomNodeComponentProps = {
   header?: object;
   cookie?: object;
   capture?: object;
+  flow?: string;
 };
-
-// const elementsSample: Elements<ArtilleryCustomNodeComponentProps> = [
-//   {
-//     id: '1',
-//     data: {
-//       url: '/search',
-//       json: {
-//         kw: '{{ keyword }}',
-//         id: '{{ id }}',
-//         user: {
-//           name: '{{ userName }}',
-//           email: '{{ userEmail }}',
-//         },
-//       },
-//       method: 'POST',
-//       capture: [
-//         {
-//           json: '$.results[0].id',
-//           as: 'productId',
-//         },
-//       ],
-//     },
-//     position: { x: 100, y: 5 },
-//     type: 'special', // input node
-//   },
-//   {
-//     id: '2',
-//     data: { url: '/product/{{ productId }}/details', method: 'GET' },
-//     position: { x: 100, y: 220 },
-//     type: 'special',
-//   },
-//   { id: 'e1-2', source: '1', target: '2', animated: true, type: 'special' },
-//   {
-//     id: '3',
-//     data: { url: '/cart', json: { productId: '{{ productId }}' }, method: 'DELETE' },
-//     position: { x: 100, y: 300 },
-//     type: 'special',
-//   },
-//   { id: 'e2-3', source: '2', target: '3', animated: true, type: 'special' },
-//   {
-//     id: '4',
-//     data: { url: '/cart', json: { productId: '{{ productId }}' }, method: 'PUT' },
-//     position: { x: 100, y: 450 },
-//     type: 'special',
-//   },
-//   { id: 'e3-4', source: '3', target: '4', animated: true, type: 'special' },
-// ];
 
 type HTTPMethod = 'GET' | 'PUT' | 'POST' | 'DELETE' | 'PATCH';
 type ArtilleryMethodType = HTTPMethod | 'THINK';
@@ -91,9 +51,37 @@ const HTTPMethodLabel: React.FC<{
   );
 };
 
+const flowColors = [
+  'bg-gradient-to-r from-emerald-300 to-green-200',
+  'bg-cyan-400',
+  'bg-indigo-200',
+  'bg-lime-400',
+  'bg-red-400',
+  'bg-purple-400',
+  'bg-pink-400',
+  'bg-rose-400',
+];
+const flowColorMap = new Map();
+
 const FlowNodeComponent: React.FC<FlowElement<ArtilleryCustomNodeComponentProps>> = ({ data }) => {
+  if (data?.flow) {
+    if (!flowColorMap.get(data.flow)) {
+      flowColorMap.set(data.flow, flowColors[Math.floor(Math.random() * flowColors.length)]);
+    }
+    const flowColor = flowColorMap.get(data.flow);
+    return (
+      <div className={'border p-1 rounded min-w-full min-h-48 w-[32rem] border-black ' + flowColor}>
+        <Handle type="target" position={Position.Top} />
+        <div className="flex items-center mb-1 justify-center">
+          <span className="p-1 font-bold">{data.flow}</span>
+        </div>
+        <Handle type="source" position={Position.Bottom} />
+      </div>
+    );
+  }
+
   return (
-    <div className="border p-1 rounded min-w-full min-h-32 border-black bg-white">
+    <div className="border p-1 rounded min-w-full min-h-48 w-[32rem] border-black bg-white">
       <Handle type="target" position={Position.Top} />
       <div className="flex items-center mb-1 justify-left">
         <HTTPMethodLabel method={data?.method ?? 'GET'} className="p-1" />
@@ -102,14 +90,14 @@ const FlowNodeComponent: React.FC<FlowElement<ArtilleryCustomNodeComponentProps>
 
       <div className="flex items-stretch">
         {data?.json ? (
-          <div className="text-xs border">
+          <div className="text-xs border w-1/2">
             <div className=" bg-slate-500 w-fit text-white p-1">json</div>
             <pre className="p-1">{JSON.stringify(data?.json, null, 2)}</pre>
           </div>
         ) : null}
 
         {data?.capture ? (
-          <div className="text-xs border">
+          <div className="text-xs border  w-1/2">
             <div className=" bg-slate-500 w-fit text-white p-1">capture</div>
             <pre className="p-1">{JSON.stringify(data?.capture, null, 2)}</pre>
           </div>
@@ -124,6 +112,43 @@ const nodeTypes = {
   special: FlowNodeComponent,
 };
 
+const nodeWidth = 172;
+const nodeHeight = 150;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getLayoutedElements = (elements: Elements, direction = 'TB') => {
+  const isHorizontal = direction === 'LR';
+  dagreGraph.setGraph({ rankdir: direction });
+
+  elements.forEach((el) => {
+    if (isNode(el)) {
+      dagreGraph.setNode(el.id, { width: nodeWidth, height: nodeHeight });
+    } else {
+      dagreGraph.setEdge(el.source, el.target);
+    }
+  });
+
+  dagre.layout(dagreGraph);
+
+  return elements.map((el: FlowElement) => {
+    if (isNode(el)) {
+      const nodeWithPosition = dagreGraph.node(el.id);
+      el.targetPosition = isHorizontal ? Position.Left : Position.Top;
+      el.sourcePosition = isHorizontal ? Position.Right : Position.Bottom;
+
+      // unfortunately we need this little hack to pass a slightly different position
+      // to notify react flow about the change. Moreover we are shifting the dagre node position
+      // (anchor=center center) to the top left so it matches the react flow node anchor point (top left).
+      el.position = {
+        x: nodeWithPosition.x - nodeWidth / 2 + Math.random() / 1000,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      };
+    }
+
+    return el;
+  });
+};
+
 const getElementsFromArtilleryScenario = (
   parsedSpec: any,
 ): Elements<ArtilleryCustomNodeComponentProps> => {
@@ -131,38 +156,74 @@ const getElementsFromArtilleryScenario = (
     return [];
   }
 
-  const scenarios = parsedSpec.scenarios;
+  const elements = parsedSpec.scenarios
+    .map((scenario: any, scenarioIndex: number) => {
+      const x = scenarioIndex * 500;
 
-  const elements = scenarios[0].flow.map((flowItem: any, index: number) => {
-    const method = Object.keys(flowItem)[0];
-    const nodeObj = flowItem[method];
+      const flowScenarios = scenario.flow.map((flowItem: any, index: number) => {
+        const method = Object.keys(flowItem)[0];
+        const nodeObj = flowItem[method];
 
-    if (method === 'think') {
-      return {
-        id: method + index,
-        data: {
-          url: nodeObj + ' sec',
-          method: method.toUpperCase(),
-        },
-        position: { x: 100, y: 75 + index * 200 },
-        type: 'special', // input node
-      };
+        const y = 75 + index * 200;
+
+        const nodeOptions = { position: { x, y }, type: 'special' };
+
+        if (method === 'think') {
+          return {
+            id: 'node-' + method + '-flow-' + scenarioIndex + '-item-' + index,
+            data: {
+              url: nodeObj + ' sec',
+              method: method.toUpperCase(),
+            },
+            ...nodeOptions,
+          };
+        }
+
+        return {
+          id: 'node-' + nodeObj.url + method + '-flow-' + scenarioIndex + '-item-' + index,
+          data: {
+            url: nodeObj.url,
+            json: nodeObj?.json,
+            method: method.toUpperCase(),
+            capture: nodeObj?.capture || undefined,
+          },
+          ...nodeOptions,
+        };
+      });
+
+      const flow = scenario?.name ? `(Flow) ${scenario.name}` : '(Flow)';
+      flowScenarios.splice(0, 0, {
+        id: 'node-start-flow-' + scenarioIndex,
+        data: { flow },
+        position: { x, y: 0 },
+        type: 'special',
+      });
+
+      flowScenarios.push({
+        id: 'node-end-flow-' + scenarioIndex,
+        data: { flow },
+        position: { x, y: 75 + (flowScenarios.length - 1) * 200 },
+        type: 'special',
+      });
+
+      return flowScenarios;
+    })
+    .flat();
+
+  // Add Edge
+  for (const [index, ele] of elements.entries()) {
+    if (ele?.id && ele.id.startsWith('node-')) {
+      if (elements[index + 1]) {
+        elements.splice(index + 1, 0, {
+          id: 'edge' + index,
+          source: elements[index].id,
+          target: elements[index + 1].id,
+          animated: true,
+          type: 'special',
+        });
+      }
     }
-
-    return {
-      id: nodeObj.url + method + index,
-      data: {
-        url: nodeObj.url,
-        json: nodeObj?.json,
-        method: method.toUpperCase(),
-        capture: nodeObj?.capture || undefined,
-      },
-      position: { x: 100, y: 75 + index * 200 },
-      type: 'special', // input node
-    };
-  });
-
-  console.log(elements);
+  }
 
   return elements;
 };
@@ -179,6 +240,8 @@ const BasicFlow = () => {
   }, [parserState.parsedSpec, setParsedSpec]);
 
   const e = getElementsFromArtilleryScenario(parsedSpec);
+  // const elements = getLayoutedElements(e);
+  const elements = e;
 
   useEffect(() => {
     if (templateState.rerender.get()) {
@@ -189,7 +252,7 @@ const BasicFlow = () => {
 
   return (
     <div className="h-screen bg-neutral-200 relative">
-      <ReactFlow elements={e} nodeTypes={nodeTypes}>
+      <ReactFlow elements={elements} nodeTypes={nodeTypes}>
         <MiniMap style={{ bottom: '70px' }} />
         <Controls style={{ bottom: '70px' }} />
         <Background />

@@ -30,7 +30,7 @@ export const Toolbar: React.FunctionComponent<ToolbarProps> = () => {
           </li>
           <li className="text-xl ml-2 opacity-75 hover:opacity-100 m-2">
             <a
-              href="https://github.com/artilleryio/artillery"
+              href="https://github.com/daisuke-awaji/artillery-visualizer"
               title="Artillery Github Repository"
               target="_blank"
               rel="noreferrer"

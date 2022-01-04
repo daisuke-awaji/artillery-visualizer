@@ -81,14 +81,14 @@ export const Sidebar: React.FunctionComponent<SidebarProps> = () => {
       state: () =>
         sidebarState.panels.view.get() &&
         sidebarState.panels.viewType.get() === 'phasesSeriesGraph',
-      icon: <VscOpenPreview className="w-5 h-5" />,
+      icon: <VscGraph className="w-5 h-5" />,
     },
     // visuliser
     {
       name: 'visualizer',
       state: () =>
         sidebarState.panels.view.get() && sidebarState.panels.viewType.get() === 'visualizer',
-      icon: <VscGraph className="w-5 h-5" />,
+      icon: <VscOpenPreview className="w-5 h-5" />,
     },
     // newFile
     // {

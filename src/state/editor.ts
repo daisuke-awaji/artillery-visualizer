@@ -37,6 +37,30 @@ scenarios:
           url: "/cart"
           json:
             productId: "{{ productId }}"
+  - name: "View the latest blog"
+    flow:
+      - get:
+          url: "/articles?latest=true&limit=30&offset=0"
+      - get:
+          url: "/articles?latest=true&limit=30&offset=30"
+      - get:
+          url: "/articles?latest=true&limit=30&offset=60"
+      - get:
+          url: "/articles/7937909"
+      - post:
+          url: "/articles/7937909/likes"
+          json:
+            like: true
+            updateBy: gee-awa
+  - name: "View the blog with large size of paging"
+    flow:
+      - get:
+          url: "/articles?latest=true&limit=1000&offset=0"
+      - get:
+          url: "/articles?latest=true&limit=1000&offset=30"
+      - get:
+          url: "/articles?latest=true&limit=1000&offset=60"
+
 `;
 export type EditorStateDocumentFrom = 'localStorage' | `URL: ${string}` | 'Base64';
 
