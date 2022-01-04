@@ -30,6 +30,7 @@ const ArtilleryScenarioChart: React.FC<Props> = ({ phases }) => {
     toolbox: {
       show: true,
       left: 'center',
+      top: '5%',
       itemSize: 20,
       feature: {
         dataView: { show: true, readOnly: false },
