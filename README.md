@@ -15,3 +15,5 @@
 
 - **Scenarios** Visualize scenarios diagram 📝<br/>
 - **Phases** Visualize phases graph 📊 (to be implemented)
+- **Lint** Validate your scenario file(to be implemented)
+- **Execute** Run artillery on your own server (to be implemented)
